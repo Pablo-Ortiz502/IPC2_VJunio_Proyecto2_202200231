@@ -1,5 +1,3 @@
-import re
-
 
 class Admin(object):
     def __init__(self):

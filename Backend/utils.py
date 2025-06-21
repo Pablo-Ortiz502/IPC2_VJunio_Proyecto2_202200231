@@ -32,7 +32,11 @@ def Settings(xml,admin:Admin):
     for c in courses:
         code = c.getAttribute("codigo")
         name = c.firstChild.nodeValue.strip()
-        admin.courses.append(Course(name, int(code)))
+        
+        ex = next((c for c in admin.courses if c.code == int(code)), None)
+        
+        if not ex:
+            admin.courses.append(Course(name, int(code)))
 
   
     tutors = root.getElementsByTagName("tutor")
@@ -40,7 +44,13 @@ def Settings(xml,admin:Admin):
         code = t.getAttribute("registro_personal")
         password = t.getAttribute("contrasenia")
         name = t.firstChild.nodeValue.strip()
-        admin.tutors.append(Tutor(name, int(code), password))
+        
+        ex = next((t for t in admin.tutors if t.code == int(code)), None)
+        
+        if not ex:
+            admin.tutors.append(Tutor(name, int(code), password))
+        
+        
 
   
     students = root.getElementsByTagName("estudiante")
@@ -48,8 +58,17 @@ def Settings(xml,admin:Admin):
         code = s.getAttribute("carnet")
         password = s.getAttribute("contrasenia")
         name = s.firstChild.nodeValue.strip()
-        admin.students.append(Student(name, int(code), password))
-
+        
+        
+        ex = next((s for s in admin.students if s.code == int(code)), None)
+        
+        if not ex:
+            admin.students.append(Student(name, int(code), password))
+        
+        
+          
+       
+                        
    
     tutorCourse = root.getElementsByTagName("tutor_curso")
     for tc in tutorCourse:
