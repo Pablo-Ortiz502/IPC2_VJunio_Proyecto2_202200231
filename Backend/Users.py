@@ -1,17 +1,58 @@
+import re
+
+
 class Admin(object):
     def __init__(self):
         self.name = 'AdminIPC2'
         self.password = 'AdminIPC2771'
         self.students = []
         self.tutors = []
-        self.courses = []   
-        
+        self.courses = []
+        self.t_fails = 0
+        self.s_fails =0
+    def getCourse(self,code:int):
+        for c in self.courses:
+            if c.code == code:
+                return c
+        print('no se encontro el curso')          
+        return None
+    
+    def getStudent(self, code:int):
+        for s in self.students:
+            if s.code == code:
+                return s
+        print('no se encontro el estudiante')          
+        return None
+    
+    def getTutor(self, code: int):
+        for t in self.tutors:
+            if t.code == code:
+                return t
+        print('no se encontro el Tutor')          
+        return None
+    
 class Tutor(object):
     def __init__(self, name, code, password) :
         self.name = name
         self.code = code
         self.password = password
         self.courses = []
+        self.time = []
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "code": self.code,
+            "password": self.password
+        }    
+
+
+class Time(object):
+    def __init__(self,start,end,code):
+        self.start = start
+        self.end = end
+        self.code = code 
+                
+        
 
 
 class Course(object):
@@ -38,13 +79,11 @@ class Student(object):
         self.courses =[]
         
         
-    def addCourse(self, course):
-        self.courses.append(course)
-        print(self.courses)
         
-    def getCourse(self, course):
+        
+    def getCourse(self, code):
         for course in self.courses:
-            if course.name == course:
+            if course.code == code:
                 return course
         print("No se encontro el curso asignado")       
         return None
