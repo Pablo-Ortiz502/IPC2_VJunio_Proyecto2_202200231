@@ -17,7 +17,7 @@ def login():
     if not code or not password:
         return jsonify({"message": "Faltan campos"}), 400
     else:
-        user = Login(code, password,admin) #problemmaaaaa
+        user = Login(code, password,admin) 
         print(user)
 
     if user == 1:
@@ -46,7 +46,7 @@ def login():
         return jsonify({"message": "Credenciales inválidas"}), 401
     
     
-#addmin    
+#------------------------------------addmin ------------------------------------------------   
 @app.route('/settXML', methods=['POST'])
 def setXML():
     xml = request.data.decode('utf-8') 
@@ -101,7 +101,7 @@ def getXML():
     fail_s = admin.s_fails
     
     xml = WriteXML(tutors,students,fali_t,fail_s)
-    return jsonify({"salida": xml})
+    return jsonify({"res": xml})
         
 
 

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>{% load static %}
+<head> {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Menu</title>
@@ -10,36 +10,91 @@
     <div class="menu">
         <div class="tex-menu-container">
             <h1>Bienvenido</h1>
-            <h1>{{name}}</h1> 
+            <h1>{{ name }}</h1> 
         </div>
-        <div class="button-menu-container">
-            <button name="load_button">Cargar archivo</button>
-            <button name="user_button">Ver Usuarios</button>
-            <button name="info_button">Ver info de Admin</button>
-            <form action="http://localhost:8000/login/">
+        <div class="button-menu-container" >
+            <form  method="get" action="{% url 'homeAdmin' %}">
+                <button name="load_button" type="submit">Cargar archivo</button>
+            </form>
+
+            <form  method="post" action="{% url 'users' %}">
+                {% csrf_token %}
+                <button name="user_button" type="submit">Ver Usuarios</button>
+            </form>
+
+            <form  method="post" action="{% url 'yo' %}">
+                {% csrf_token %}
+                <button name="info_button" type="submit">Ver info de Admin</button>
+            </form>
+
+            <form action="{% url 'login' %}" method="get">
+                {% csrf_token %}
                 <button type="submit">Salir</button>
             </form>
         </div>
     </div>
     
-    <div class="reader-container">
-        <h1>Carga de datos</h1>
-        <div class="button-reader">
-            <input type="file">
-            <button class="br" name="rad_button">Procesar</button>
-            <button class="br" name="clean_button">Limpiar</button>
-        </div>
+    <div class="reader-container"><!--empieza-->
+
+    {% if data%}
+        <h1>Usuarios Registrados</h1>
+        <table class="user_table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Contraseña</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for user in data.users %}
+                <tr>
+                    <td>{{ user.code }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.password }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {%elif yo and code%}
+        <h1>Nombre: {{name}}</h1>
+        <h1>Carnet: {{code}}</h1>
+        <iframe src="{% static 'docs/[IPC2]Proyecto2_VJ_2025_Final.pdf' %}" width="100%" height="600px">
+            Este navegador no soporta PDFs. 
+            <a href="{% static 'docs/[IPC2]Proyecto2_VJ_2025_Final.pdf' %}">Descargar PDF</a>
+        </iframe>
+    {%else%}
+         <h1>Carga de datos</h1>        
+        <form method="post" enctype="multipart/form-data" action="{% url 'setted' %}">
+            {% csrf_token %}
+            <div class="button-reader">
+                <input type="file" name="xml_file" accept=".xml" required>
+                <button class="br" type="submit" name="rad_button">Procesar</button>
+            </div>
+        </form>
+        <form method="get" action="{% url 'homeAdmin' %}">
+            <button class="br" type="submit" name="clean_button">Limpiar</button>
+        </form>
+
         <div class="upload">
-            <textarea name="read_text" id="read_text" class="read_text"></textarea>
+            <textarea name="read_text" id="read_text" class="read_text">
+                {% if xmlContent %}
+                    {{xmlContent}}
+                {% endif %}
+            </textarea>
         </div>
+
         <div class="result">
             <h1>Salida</h1>
-            <textarea readonly name="result_text" id="result_text" class="read_text"></textarea>
-        </div>
-    </div>    
-    
-    
+            <textarea readonly name="result_text" id="result_text" class="read_text">
+                {% if apiRes %}
+                    {{apiRes}}
+                {% endif %}
+            </textarea>
+        </div>       
+    {% endif %}
 
+        
+    </div> <!--termina-->
 </body>
 </html>
-

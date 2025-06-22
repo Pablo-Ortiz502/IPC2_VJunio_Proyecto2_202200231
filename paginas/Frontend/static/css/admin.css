@@ -9,7 +9,7 @@ body {
     
 }
 .menu{
-    background-color: #abe7d0;
+    background-color: #7da898;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -22,12 +22,14 @@ body {
 }
 
 h1{
+    color: rgb(255, 255, 255);
     display: flex;
     justify-content: center;
+    text-align: center;
 }
 
 .reader-container {
-    background-color: #abe7d0;
+    background-color: #7da898;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -44,6 +46,10 @@ h1{
     justify-content: left;
     margin-left: 30px;
 }
+.reader-container form {
+    display: inline-block;
+    margin: 5px;
+}
 
 .button-menu-container button {
   width: 100%;
@@ -58,7 +64,7 @@ h1{
 }
 
 .button-reader{
-    margin-top: 60px;
+    margin-top: 30px;
     margin-left: 30px;
 }
 .br{
@@ -75,7 +81,39 @@ h1{
 .read_text{
     font-size: 20px;
     margin: 30px;
-    width: 1000px;
+    width: 70%;
     height: 250px;
     overflow: auto;
+}
+
+.user_table {
+    width: 80%;
+    max-width: 70%;
+    overflow: auto;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.user_table th,
+.user_table td {
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.user_table thead {
+    background-color: #2ea578;
+    color: white;
+}
+
+.user_table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+iframe {
+    margin-left: 100px;
+    height: 80%;
+    width: 70%;
 }

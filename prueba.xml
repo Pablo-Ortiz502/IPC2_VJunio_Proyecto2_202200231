@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<configuraciones>
+  <cursos>
+    <curso codigo="770">Curso 1</curso>
+    <curso codigo="999">Logica</curso>
+  </cursos>
+  <tutores>
+    <tutor registro_personal="1111" contrasenia="1234">Warismo</tutor>
+  </tutores>
+  <estudiantes>
+    <estudiante carnet="1234" contrasenia="1234">Carlos Garcia</estudiante>
+    <estudiante carnet="1234" contrasenia="1234">Carlos Reyes</estudiante>
+    <estudiante carnet="1234a" contrasenia="1234">es1</estudiante>
+    <estudiante carnet="202200231" contrasenia="1234">Pablo Ortiz</estudiante>
+    <estudiante carnet="1234a" contrasenia="1234">es1</estudiante>
+  </estudiantes>
+  <asignaciones>
+    <c_tutores>
+      <tutor_curso codigo="770">1111</tutor_curso>
+      <tutor_curso codigo="999">1111</tutor_curso>
+      <tutor_curso codigo="999">2222</tutor_curso>
+    </c_tutores>
+    <c_estudiante>
+      <estudiante_curso codigo="770">1234</estudiante_curso>
+      <estudiante_curso codigo="999">1234</estudiante_curso>
+      <estudiante_curso codigo="770">202200231</estudiante_curso>
+      <estudiante_curso codigo="999">202200231</estudiante_curso>
+      <estudiante_curso codigo="800">1234</estudiante_curso>
+      <estudiante_curso codigo="770">2010002332</estudiante_curso>
+    </c_estudiante>
+  </asignaciones>
+</configuraciones>
