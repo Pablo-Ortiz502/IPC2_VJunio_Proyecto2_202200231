@@ -11,11 +11,11 @@ def Login(code ,password, admin:Admin):
         return 1
 
     for student in admin.students:
-        if password == student.password and code == str(student.code):
+        if password == student.password and code == int(student.code):
             return 2
     
     for tutor in admin.tutors:
-        if password == tutor.password and code == str(tutor.code):
+        if password == tutor.password and code == int(tutor.code):
             return 3
     
     return 0
@@ -33,6 +33,12 @@ def Settings(xml,admin:Admin):
         code = c.getAttribute("codigo")
         name = c.firstChild.nodeValue.strip()
         
+        try:
+            int(code)
+        except ValueError:
+            print('codigo invalido en xml')
+            continue
+                    
         ex = next((c for c in admin.courses if c.code == int(code)), None)
         
         if not ex:
@@ -44,6 +50,11 @@ def Settings(xml,admin:Admin):
         code = t.getAttribute("registro_personal")
         password = t.getAttribute("contrasenia")
         name = t.firstChild.nodeValue.strip()
+        try:
+            int(code)
+        except ValueError:
+            print('codigo invalido en xml')
+            continue
         
         ex = next((t for t in admin.tutors if t.code == int(code)), None)
         
@@ -58,7 +69,11 @@ def Settings(xml,admin:Admin):
         code = s.getAttribute("carnet")
         password = s.getAttribute("contrasenia")
         name = s.firstChild.nodeValue.strip()
-        
+        try:
+            int(code)
+        except ValueError:
+            print('codigo invalido en xml')
+            continue
         
         ex = next((s for s in admin.students if s.code == int(code)), None)
         

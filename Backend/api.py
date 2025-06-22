@@ -1,11 +1,10 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify
 from utils import Login,Timer,Settings,WriteXML
-from Users import Admin, Student
-from xml.dom import minidom
+from Users import Admin
 admin = Admin()
 app = Flask(__name__)
 
-#http://localhost:8000
+#http://localhost:5000
 
 #login
 @app.route('/login', methods=['POST'])
@@ -18,11 +17,12 @@ def login():
     if not code or not password:
         return jsonify({"message": "Faltan campos"}), 400
     else:
-        status = Login(code, password,admin)
+        user = Login(code, password,admin) #problemmaaaaa
+        print(user)
 
-    if status == 1:
+    if user == 1:
         app.config['USER'] = admin
-        return jsonify({"message": "Login exitoso", "Admin": code}), 200
+        return jsonify({"message": "Login exitoso", "user": 1 }), 200
     
     try:
         int(code)
@@ -30,17 +30,17 @@ def login():
         print('codigo invalido')
         return jsonify({"message": "Credenciales inválidas"}), 401
     
-    if status == 2:
+    if user == 2:
         for s in admin.students:
             if s.code == int(code):
-                app.config['USER'] = s
-        return jsonify({"message": "Login exitoso", "Estudiante": code}), 200
+                app.config['USER'] = s       
+        return jsonify({"message": "Login exitoso", "User": 2}), 200
     
-    if status == 3:
+    if user == 3:
         for t in admin.tutors:
             if t.code == int(code):
-                app.config['USER'] = t  
-        return jsonify({"message": "Login exitoso", "Tutor": code}), 200
+                app.config['USER'] = t          
+        return jsonify({"message": "Login exitoso", "user": 3}), 200
     
     else:
         return jsonify({"message": "Credenciales inválidas"}), 401
@@ -57,15 +57,33 @@ def setXML():
         print(f"{student.name} ({student.code}) - Cursos asignados: {[c.name for c in student.courses]}")
         
     for tutor in admin.tutors:
-        print(f"{tutor.name} ({tutor.code})")    
+        print(f"{tutor.name} ({tutor.code})- Cursos asignados: {[c.name for c in tutor.courses]} ")    
     
     return jsonify({"message": "exito"}),200
 
-@app.route('/getAd')
+@app.route('/getStu', methods=['POST'])
+def getStu():
+    data = request.get_json()
+    code = data.get('code')
+    print(code)
+    
+    for s in admin.students:
+        if s.code == int(code):
+            student = admin.getStudent(int(code)).to_dict()
+            return jsonify({'user': student, "tp": "student"}),200
+    for t in admin.tutors:
+        if t.code == int(code):
+            tutor = admin.getTutor(int(code)).to_dict()
+            return jsonify({'user': tutor, "tp": "tutor"}),200
+        
+    return jsonify({"message": "error al buscar el usuario" }),400
+    
+
+@app.route('/getAd', methods=['POST'])
 def getAd():
     return jsonify({"name": "Pablo Jose Ortiz Linares","carnet": "202200231"})
 
-@app.route('/getUs')
+@app.route('/getUs', methods=['POST'])
 def getUs():
     users =[]
     for t in admin.tutors:
@@ -74,7 +92,7 @@ def getUs():
         users.append(s.to_dict())
     return jsonify({"users": users}),200
 
-@app.route('/getXML')
+@app.route('/getXML', methods=['POST'])
 def getXML():
     
     tutors = len(admin.tutors)
@@ -104,4 +122,4 @@ def timeXML():
 
 
 if __name__ == '__main__':
-    app.run(debug=True,port=8000)
+    app.run(debug=True,port=5000)

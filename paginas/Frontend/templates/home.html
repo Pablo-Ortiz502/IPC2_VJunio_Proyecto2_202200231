@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>{% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Menu</title>
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body>
+    <div class="menu">
+        <div class="tex-menu-container">
+            <h1>Bienvenido</h1>
+            <h1>{{name}}</h1> 
+        </div>
+        <div class="button-menu-container">
+            <button name="load_button">Cargar archivo</button>
+            <button name="user_button">Ver Usuarios</button>
+            <button name="info_button">Ver info de Admin</button>
+            <form action="http://localhost:8000/login/">
+                <button type="submit">Salir</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="reader-container">
+        <h1>Carga de datos</h1>
+        <div class="button-reader">
+            <input type="file">
+            <button class="br" name="rad_button">Procesar</button>
+            <button class="br" name="clean_button">Limpiar</button>
+        </div>
+        <div class="upload">
+            <textarea name="read_text" id="read_text" class="read_text"></textarea>
+        </div>
+        <div class="result">
+            <h1>Salida</h1>
+            <textarea readonly name="result_text" id="result_text" class="read_text"></textarea>
+        </div>
+    </div>    
+    
+    
+
+</body>
+</html>
+
