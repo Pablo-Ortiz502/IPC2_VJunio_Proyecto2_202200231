@@ -1,4 +1,7 @@
 
+from tracemalloc import start
+
+
 class Admin(object):
     def __init__(self):
         self.name = 'AdminIPC2'
@@ -45,12 +48,19 @@ class Tutor(object):
 
 
 class Time(object):
-    def __init__(self,start,end,code):
+    def __init__(self,start,end,code,name):
         self.start = start
         self.end = end
         self.code = code 
-                
-        
+        self.name = name        
+    
+    def to_dict(self):
+        return{
+            "start": self.start,
+            "end": self.end,
+            "code": self.code,
+            "name": self.name
+        }    
 
 
 class Course(object):

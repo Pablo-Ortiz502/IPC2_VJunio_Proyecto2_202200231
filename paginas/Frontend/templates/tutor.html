@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Menu</title>
+    <link rel="stylesheet" href="{% static 'css/tutor.css' %}">
+</head>
+<body>
+    <div class="menu">
+        <div class="tex-menu-container">
+            <h1>Bienvenido</h1>
+            <h1>{{ name }}</h1> 
+        </div>
+        <div class="button-menu-container" >
+            <form  method="get" action="{% url 'homeAdmin' %}">
+                <button name="load_button" type="submit">Cargar horario</button>
+            </form>
+
+            <form  method="post" action="{% url 'login' %}"> <!--provisional-->
+                {% csrf_token %}
+                <button name="user_button" type="submit">cargar notas</button>
+            </form>
+            <form action="{% url 'login' %}" method="get">
+                {% csrf_token %}
+                <button type="submit">Salir</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="reader-container"><!--empieza-->
+
+    
+        <h1>Usuarios Registrados</h1>
+        <form method="post" enctype="multipart/form-data" action="{% url 'times' %}">
+            {% csrf_token %}
+            <div class="button-reader">
+                <input type="file" name="xml_file" accept=".xml" required>
+                <button class="br" type="submit" name="rad_button">Procesar</button>
+            </div>
+        </form>
+
+        <table class="user_table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>LUNES</th>
+                    <th>MARTES</th>
+                    <th>MIERCOLES</th>
+                    <th>JUEVES</th>
+                    <th>VIERNES</th>
+                </tr>
+            </thead>
+            <tbody>    
+                {% for item in data.times %}
+                    <tr>
+                        <td>{{ item.code }} - {{ item.name }}</td>
+                        {% for _ in "12345" %}
+                            <td>{{ item.start }} - {{ item.end }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>       
+    
+
+        
+    </div> <!--termina-->
+</body>
+</html>

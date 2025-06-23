@@ -1,5 +1,6 @@
 
 
+from encodings.punycode import T
 from Users import Admin, Tutor, Student, Course, Time
 from xml.dom import minidom
 import re
@@ -9,11 +10,16 @@ def Login(code ,password, admin:Admin):
     
     if password == admin.password and code == admin.name:
         return 1
+    
+    try:
+       code = int(code)
+    except ValueError:
+        return 0    
 
     for student in admin.students:
         if password == student.password and code == int(student.code):
             return 2
-    
+        
     for tutor in admin.tutors:
         if password == tutor.password and code == int(tutor.code):
             return 3
@@ -93,6 +99,17 @@ def Settings(xml,admin:Admin):
        
         course = next((c for c in admin.courses if c.code == courseC), None)
         tutor = next((t for t in admin.tutors if t.code == tutorC), None)
+        
+        ex = None
+        
+        for t in admin.tutors:
+            if t.code == tutorC:
+                for c in t.courses:
+                    if c.code == courseC:
+                        ex = c
+        
+        if ex:
+            continue   
 
         if course and tutor:
             tutor.courses.append(course)
@@ -107,7 +124,18 @@ def Settings(xml,admin:Admin):
 
         course = next((c for c in admin.courses if c.code == courseC), None)
         student = next((s for s in admin.students if s.code == studentC), None)
+        
+        ex = None
+        
+        for s in admin.students:
+            if s.code == studentC:
+                for c in s.courses:
+                    if c.code == courseC:
+                        ex = c
 
+        if ex:
+            continue
+        
         if course and student:
             student.courses.append(course)
         else:
@@ -121,15 +149,19 @@ def Timer(xml,tutor:Tutor):
     courses = dom.getElementsByTagName("curso")
 
     for course in courses:
-        codigo = int(course.getAttribute("codigo"))
+        code = int(course.getAttribute("codigo"))
         date = course.firstChild.nodeValue.strip()
 
+        horario = next((t for t in tutor.time if t.code == code ), None)
+        
+        if horario:
+            continue
        
         time = re.findall(r'\b\d{2}:\d{2}\b', date)
         if len(time) >= 2:
             for c in tutor.courses:
-                if c.code == codigo:
-                    time_obj = Time(time[0], time[1], codigo)
+                if c.code == code:
+                    time_obj = Time(time[0], time[1], code,c.name)
                     tutor.time.append(time_obj)
             
 def WriteXML(tutors,students,inTutors,inStudents):

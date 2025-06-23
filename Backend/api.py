@@ -114,10 +114,14 @@ def timeXML():
     
     xml = request.data.decode('utf-8') 
     Timer(xml,tutor)
-    tutor =admin.tutors[0].time[0]
-    print('-------',tutor.code,'inicia',tutor.start,'termina',tutor.end)
+    print(tutor.time)
     
-    return jsonify({"message": "exito"}),200
+    times = []
+    for t in tutor.time:
+        print(t.to_dict())
+        times.append(t.to_dict())
+    
+    return jsonify({"times": times}),200 
 
 
 
