@@ -1,5 +1,4 @@
-from unicodedata import name
-from Matrix import Matrix
+
 
 class Admin(object):
     def __init__(self):
@@ -8,6 +7,7 @@ class Admin(object):
         self.students = []
         self.tutors = []
         self.courses = []
+        self.notes = []
         self.t_fails = 0
         self.s_fails =0
     def getCourse(self,code:int):
@@ -31,14 +31,25 @@ class Admin(object):
         print('no se encontro el Tutor')          
         return None
     
+    def getMatrix(self, name: str):
+        for m in self.notes:
+            if m.name == name:
+                return m
+    
 class Tutor(object):
     def __init__(self, name, code, password) :
         self.name = name
         self.code = code
         self.password = password
-        self.notes = []
         self.courses = []
         self.time = []
+    
+    def getCourse(self,code:int):
+        for c in self.courses:
+            if c.code == code:
+                return c
+        print('no se encontro el curso')          
+        return None    
         
     def to_dict(self):
         return {
@@ -70,7 +81,6 @@ class Course(object):
         self.code = code
         self.note = 0
         self.tutor = None
-        self.act = []
         
         
         

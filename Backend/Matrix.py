@@ -1,3 +1,5 @@
+from Users import Activity
+
 class HeadNode():
     def __init__(self, id,header):
         self.id = id
@@ -151,12 +153,29 @@ class Matrix():
                 
             rowHead = rowHead.next
             
-            #aun falta
+    def getColum(self,code):
+        rowHead = self.row.first
+        colum = []
+        while rowHead is not None:
+            current = rowHead.acces
+            columHead = self.colum.first
+            if rowHead.id == code: 
+                while current is not None:
+                    colum.append(Activity(columHead.header,current.valor,current.x))
+                    columHead = columHead.next
+                    current = current.next
+                return colum    
+            rowHead = rowHead.next
+                   
+                
 
 if __name__ == '__main__':
     m = Matrix(0,"curso 2")
     m.add(2010002332, 1, 'A',"tarea1")
     m.add(2010002332, 2, 'B',"tarea2")
-    m.add(2010002332, 3, 'C',"tarea3") 
-
+    m.add(2010002332, 3, 'C',"tarea3")
+    m.add(2010, 2, 'd',"tarea1") 
     m.display()
+    
+    print(m.getColum(2010))
+    

@@ -1,4 +1,5 @@
 
+from operator import neg
 from Users import Admin, Tutor, Student, Course, Time,Activity
 from xml.dom import minidom
 import re
@@ -171,8 +172,10 @@ def setNotes(xml,tutor: Tutor,admin: Admin):
     dom = minidom.parseString(xml_string)
     course = dom.getElementsByTagName("curso")[0]
     codeC = int(course.getAttribute("codigo"))
-    nameC = course.firstChild.nodeValue.strip()
-    
+    nameC = course.firstChild.nodeValue.strip() 
+    cou = next((c for c in admin.courses if c.code == codeC),None)
+    if not cou:
+        return
     act = []
     activities = dom.getElementsByTagName("actividad")
     
@@ -184,33 +187,33 @@ def setNotes(xml,tutor: Tutor,admin: Admin):
     print(act) 
     
     matrix = next((m for m in tutor.notes if m.name.lower() == nameC.lower()), None)
-    print(matrix)
     if not matrix:
-        matrix = Matrix(0,nameC)
-        tutor.notes.append(matrix)
+        matrix = Matrix(0,codeC)
+        admin.notes.append(matrix)
     else:
         current = matrix.colum.first
         while current is not None:
             act.append(current.header.lower())
             current = current.next
     act = list(dict.fromkeys(act)) 
-    
-    actividades=[]    
-               
     for actuvity in activities:
         name = actuvity.getAttribute("nombre").lower()
         code = int(actuvity.getAttribute("carnet"))
         note = int(actuvity.firstChild.nodeValue.strip())
-        activity =Activity(name,note,int(code))
-        actividades.append(activity)
         if name in act and 0 <= note <= 100:
-            matrix.add(code,act.index(name),note,name)
+            print(code)
+            student = next((s for s in admin.students if s.code == code), None)
+            print(student)
+            if student:
+                cou = next((c for c in student.courses if c.code == codeC),None)
+                if cou:
+                    cou.note +=note
+                    matrix.add(code,act.index(name),note,name)
+                    admin.notes.append(matrix)
             
-
-    for s in admin.students:
-        for a in actividades:
-            if s.code == a.code:
-                s.getCourse(codeC).act.append(a.to_dict())
+                
+            
+            
          
                 
             

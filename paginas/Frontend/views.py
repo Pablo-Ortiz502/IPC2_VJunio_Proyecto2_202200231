@@ -2,7 +2,7 @@ from urllib import response
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 import requests
-from datetime import datetime
+
 
 
 def login_view(request):
@@ -44,9 +44,8 @@ def home_view(request):
             return render(request, "home.html", {"name": name})
     if user == 3:
         
-        t = []
+        t = [""]
         c = request.session.get("code")
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         response2 = requests.post("http://localhost:5000/getStu", json={
             "code": c
             })
@@ -161,7 +160,51 @@ def time_view(request):
         return render(request, 'tutor.html', {'data': data,"name": name})
     
     return render(request, 'tutor.html')
-        
+
+
+
+def notes_view(request):
+    c = request.session.get("code")
+    name = ""
+    
+    response2 = requests.post("http://localhost:5000/getStu", json={
+            "code": c
+    })
+            
+    if response2.status_code == 200:
+        data2 = response2.json()
+        user = data2.get("user")
+        name = user.get("name")
+    
+     
+    if request.method == 'POST' and 'xml_file' in request.FILES:
+        xmlFile = request.FILES['xml_file']
+        name =""
+        data="no ufnciono"
+        try:
+            xmlContent = xmlFile.read().decode('utf-8')
+           
+            response = requests.post('http://localhost:5000/setNotes',  
+                data=xmlContent,
+                headers={'Content-Type': 'application/xml'}
+            )
+            data = response.json()
+            
+            response2 = requests.post("http://localhost:5000/getStu", json={
+            "code": c
+            })
+            
+            if response2.status_code == 200:
+                data2 = response2.json()
+                user = data2.get("user")
+                name = user.get("name")
+
+        except UnicodeDecodeError:
+            xmlContent = 'Error al leer el archivo'         
+
+        return render(request, 'tutor.html', {"name": name, "k":data})
+    
+    return render(request, 'tutor.html',{"name": name, "k":name})
 
 
 def test_view(request):

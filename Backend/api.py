@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from utils import Login,Timer,Settings,WriteXML,setNotes
-from Users import Admin
+from Users import Activity, Admin
 admin = Admin()
 app = Flask(__name__)
 
@@ -127,6 +127,7 @@ def timeXML():
 def notesApi():
     tutor = app.config.get('USER')
     if not tutor:
+        print("aqui no hay tutor")
         return jsonify({"message": "Credenciales inválidas"}), 401
     
     xml = request.data.decode('utf-8')
@@ -134,12 +135,37 @@ def notesApi():
     print("hola")
     matrix.display()
     
-    for s in admin.students:
-        for c in s.courses:
-            print(c.act)
+    rowHead = matrix.row.first
+    notes = []
+    while rowHead is not None:
+        current = rowHead.acces
+        columHead = matrix.colum.first
+        while current is not None:
+            notes.append(Activity(columHead.header,current.valor,current.x).to_dict())
+            columHead = columHead.next
+            current = current.next
+                
+        rowHead = rowHead.next
     
+    print(notes)
+
+    #hay que cambiar como se llena la lista de actividades
     return jsonify({"message": "exito"}),200 
 
+@app.route('/getNotesP',methods=['POST'])
+def getNotesT():
+    data = request.get_json()
+    code = int(data.get('code'))
+    tutor = app.config.get('USER')
+    course = admin.getCourse(code).name.lower()
+    
+    
+    
+    
+    
+    
+    return jsonify({"message": "exito"}),200 
+    
 
 if __name__ == '__main__':
     app.run(debug=True,port=5000)

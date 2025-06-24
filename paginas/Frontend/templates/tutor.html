@@ -17,9 +17,17 @@
                 <button name="load_button" type="submit">Cargar horario</button>
             </form>
 
-            <form  method="post" action="{% url 'login' %}"> <!--provisional-->
+            <form  method="post" action="{% url 'notesT' %}"> <!--provisional-->
                 {% csrf_token %}
                 <button name="user_button" type="submit">cargar notas</button>
+            </form>
+            <form  method="post" action="{% url 'notesT' %}"> <!--provisional-->
+                {% csrf_token %}
+                <button name="user_button" type="submit">Ver Promedio</button>
+            </form>
+            <form  method="post" action="{% url 'notesT' %}"> <!--provisional-->
+                {% csrf_token %}
+                <button name="user_button" type="submit">top notas</button>
             </form>
             <form action="{% url 'login' %}" method="get">
                 {% csrf_token %}
@@ -30,15 +38,17 @@
     
     <div class="reader-container"><!--empieza-->
 
-    
-        <h1>Usuarios Registrados</h1>
-        <form method="post" enctype="multipart/form-data" action="{% url 'times' %}">
-            {% csrf_token %}
-            <div class="button-reader">
-                <input type="file" name="xml_file" accept=".xml" required>
-                <button class="br" type="submit" name="rad_button">Procesar</button>
-            </div>
-        </form>
+            
+        
+        {% if data %}
+            <h1>Carga de horarios</h1>
+            <form method="post" enctype="multipart/form-data" action="{% url 'times' %}">
+                {% csrf_token %}
+                <div class="button-reader">
+                    <input type="file" name="xml_file" accept=".xml" required>
+                    <button class="br" type="submit" name="rad_button">Procesar</button>
+                </div>
+            </form>
 
         <table class="user_table">
             <thead>
@@ -61,8 +71,25 @@
                     </tr>
                 {% endfor %}
             </tbody>
-        </table>       
-    
+        </table>
+
+        {% elif k %}
+            <h1>Carga de notas</h1> 
+            <form method="post" enctype="multipart/form-data" action="{% url 'notesT' %}">
+                {% csrf_token %}
+                <div class="button-reader">
+                    <input type="file" name="xml_file" accept=".xml" required>
+                    <button class="br" type="submit" name="rad_button">Procesar</button>
+                </div>
+            </form>
+        {% elif s %}
+            <h1>Resumen de notas</h1>
+                
+        {% endif %}
+
+        
+
+        
 
         
     </div> <!--termina-->
