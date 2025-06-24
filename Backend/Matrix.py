@@ -1,10 +1,11 @@
 class HeadNode():
-    def __init__(self, id):
+    def __init__(self, id,header):
         self.id = id
         self.next = None
         self.prev = None
         self.acces = None
         self.value = None
+        self.header = header
 
 class HeadList():
     def __init__(self, type):
@@ -12,7 +13,7 @@ class HeadList():
         self.first = None
         self.last = None
         self.size = 0
-
+        
     def addHeadNode(self, newNode):
         if self.first is None:
             self.first = newNode
@@ -37,7 +38,7 @@ class HeadList():
                         current.prev = newNode
                         break
                     elif newNode.id == current.id:
-                        return  # Ya existe, no lo agregues
+                        return  # Ya existe
                     current = current.next
         self.size += 1
 
@@ -60,27 +61,30 @@ class Node():
         self.down = None
 
 class Matrix():
-    def __init__(self, layer):
+    def __init__(self, layer, name):
         self.layer = layer
+        self.name = name
         self.row = HeadList('x')
         self.colum = HeadList('y')
 
-    def checkHead(self, x, y):
+    def checkHead(self, x, y,activity):
         xNode = self.row.getHead(x)
         yNode = self.colum.getHead(y)
 
         if xNode is None:
-            xNode = HeadNode(x)
+            xNode = HeadNode(x,None)
             self.row.addHeadNode(xNode)
+            
         if yNode is None:
-            yNode = HeadNode(y)
+            yNode = HeadNode(y,activity)
             self.colum.addHeadNode(yNode)
+           
 
         return xNode, yNode
 
-    def add(self, x, y, valor):
+    def add(self, x, y, valor,activity):
         new = Node(x, y, valor)
-        nodeRow, nodeCol = self.checkHead(x, y)
+        nodeRow, nodeCol = self.checkHead(x, y,activity)
 
         # Insertar en fila (horizontal)
         if nodeRow.acces is None:
@@ -94,7 +98,7 @@ class Matrix():
             else:
                 while current is not None:
                     if new.y == current.y:
-                        return  # Ya existe ese nodo
+                        return  
                     elif new.y < current.y:
                         new.next = current
                         new.prev = current.prev
@@ -136,18 +140,23 @@ class Matrix():
 
     def display(self):
         rowHead = self.row.first
+        
         while rowHead is not None:
             current = rowHead.acces
+            columHead = self.colum.first
             while current is not None:
-                print(f"({current.x}, {current.y}) = {current.valor}")
+                print(f"({current.x}, {columHead.header},{current.y}) = {current.valor}")
+                columHead = columHead.next
                 current = current.next
+                
             rowHead = rowHead.next
+            
+            #aun falta
 
 if __name__ == '__main__':
-    m = Matrix(0)
-    m.add(1, 2, 'A')
-    m.add(0, 0, 'B')
-    m.add(2, 1, 'C')
-    m.add(1, 2, 'Z')  # Intento duplicado, se ignora
+    m = Matrix(0,"curso 2")
+    m.add(2010002332, 1, 'A',"tarea1")
+    m.add(2010002332, 2, 'B',"tarea2")
+    m.add(2010002332, 3, 'C',"tarea3") 
 
     m.display()

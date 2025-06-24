@@ -1,10 +1,9 @@
 
-
-from encodings.punycode import T
-from Users import Admin, Tutor, Student, Course, Time
+from Users import Admin, Tutor, Student, Course, Time,Activity
 from xml.dom import minidom
 import re
 from xml.dom.minidom import Document
+from Matrix import Matrix
 
 def Login(code ,password, admin:Admin):
     
@@ -112,8 +111,9 @@ def Settings(xml,admin:Admin):
             continue   
 
         if course and tutor:
-            tutor.courses.append(course)
-            course.setTutor(tutor.name)
+            c = Course(course.name, course.code)
+            tutor.courses.append(c)
+            c.setTutor(tutor.name)
         else:
             admin.t_fails +=1
  
@@ -137,7 +137,9 @@ def Settings(xml,admin:Admin):
             continue
         
         if course and student:
-            student.courses.append(course)
+            
+            c = Course(course.name, course.code)
+            student.courses.append(c)
         else:
             admin.s_fails +=1
             
@@ -163,6 +165,60 @@ def Timer(xml,tutor:Tutor):
                 if c.code == code:
                     time_obj = Time(time[0], time[1], code,c.name)
                     tutor.time.append(time_obj)
+
+def setNotes(xml,tutor: Tutor,admin: Admin):
+    xml_string = xml.decode('utf-8') if isinstance(xml, bytes) else xml
+    dom = minidom.parseString(xml_string)
+    course = dom.getElementsByTagName("curso")[0]
+    codeC = int(course.getAttribute("codigo"))
+    nameC = course.firstChild.nodeValue.strip()
+    
+    act = []
+    activities = dom.getElementsByTagName("actividad")
+    
+    for actuvity in activities:
+        name = actuvity.getAttribute("nombre")
+        act.append(name.lower())
+    print(act)    
+    act = list(dict.fromkeys(act))
+    print(act) 
+    
+    matrix = next((m for m in tutor.notes if m.name.lower() == nameC.lower()), None)
+    print(matrix)
+    if not matrix:
+        matrix = Matrix(0,nameC)
+        tutor.notes.append(matrix)
+    else:
+        current = matrix.colum.first
+        while current is not None:
+            act.append(current.header.lower())
+            current = current.next
+    act = list(dict.fromkeys(act)) 
+    
+    actividades=[]    
+               
+    for actuvity in activities:
+        name = actuvity.getAttribute("nombre").lower()
+        code = int(actuvity.getAttribute("carnet"))
+        note = int(actuvity.firstChild.nodeValue.strip())
+        activity =Activity(name,note,int(code))
+        actividades.append(activity)
+        if name in act and 0 <= note <= 100:
+            matrix.add(code,act.index(name),note,name)
+            
+
+    for s in admin.students:
+        for a in actividades:
+            if s.code == a.code:
+                s.getCourse(codeC).act.append(a.to_dict())
+         
+                
+            
+    
+    matrix.display()    
+    return matrix                         
+                    
+                    
             
 def WriteXML(tutors,students,inTutors,inStudents):
     doc = Document()

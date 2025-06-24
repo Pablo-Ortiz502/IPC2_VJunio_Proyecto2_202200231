@@ -1,6 +1,5 @@
-
-from tracemalloc import start
-
+from unicodedata import name
+from Matrix import Matrix
 
 class Admin(object):
     def __init__(self):
@@ -37,8 +36,10 @@ class Tutor(object):
         self.name = name
         self.code = code
         self.password = password
+        self.notes = []
         self.courses = []
         self.time = []
+        
     def to_dict(self):
         return {
             "name": self.name,
@@ -67,9 +68,9 @@ class Course(object):
     def __init__(self,name, code):
         self.name = name
         self.code = code
-        self.note = None
+        self.note = 0
         self.tutor = None
-        self.actividades = []
+        self.act = []
         
         
         
@@ -85,10 +86,7 @@ class Student(object):
         self.code = code
         self.password = password
         self.courses =[]
-        
-        
-        
-        
+             
     def getCourse(self, code):
         for course in self.courses:
             if course.code == code:
@@ -100,6 +98,18 @@ class Student(object):
             "name": self.name,
             "code": self.code,
             "password": self.password
-        }     
-        
+        }  
+           
+class Activity(object):
+    def __init__(self,name, note,code):
+        self.name = name
+        self.note = note
+        self.code = code
+    def to_dict(self):
+        return{
+            "name": self.name,
+            "note": self.note,
+            "code": self.code
+        }    
+                
                 

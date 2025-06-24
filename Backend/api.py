@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from utils import Login,Timer,Settings,WriteXML
+from utils import Login,Timer,Settings,WriteXML,setNotes
 from Users import Admin
 admin = Admin()
 app = Flask(__name__)
@@ -105,14 +105,14 @@ def getXML():
         
 
 
-#tutor
+#-----------------------------------------tutor-------------------------------------
 @app.route('/timeXML', methods=['POST'])
 def timeXML():
     tutor = app.config.get('USER')
     if not tutor:
         return jsonify({"message": "Credenciales inválidas"}), 401
     
-    xml = request.data.decode('utf-8') 
+    xml = request.data
     Timer(xml,tutor)
     print(tutor.time)
     
@@ -121,8 +121,24 @@ def timeXML():
         print(t.to_dict())
         times.append(t.to_dict())
     
-    return jsonify({"times": times}),200 
+    return jsonify({"times": times}),200
 
+@app.route('/setNotes',methods=['POST']) 
+def notesApi():
+    tutor = app.config.get('USER')
+    if not tutor:
+        return jsonify({"message": "Credenciales inválidas"}), 401
+    
+    xml = request.data.decode('utf-8')
+    matrix = setNotes(xml,tutor,admin)
+    print("hola")
+    matrix.display()
+    
+    for s in admin.students:
+        for c in s.courses:
+            print(c.act)
+    
+    return jsonify({"message": "exito"}),200 
 
 
 if __name__ == '__main__':
