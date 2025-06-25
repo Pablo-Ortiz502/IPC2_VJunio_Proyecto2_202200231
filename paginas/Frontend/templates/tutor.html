@@ -25,7 +25,7 @@
                 {% csrf_token %}
                 <button name="user_button" type="submit">Ver Promedio</button>
             </form>
-            <form  method="post" action="{% url 'notesT' %}"> <!--provisional-->
+            <form  method="get" action="{% url 'top' %}"> <!--provisional-->
                 {% csrf_token %}
                 <button name="user_button" type="submit">top notas</button>
             </form>
@@ -83,25 +83,61 @@
                 </div>
             </form>
         {% elif s %}
-            <h1>Promedio de notas</h1>
-
+            <h1>Promedio de actividades</h1>
+            <h2>Cursos con notas subidas:</h2>
             <form method="post" action="{% url 'promedy' %}">
                 {% csrf_token %}
-            <select name="activity" id="combo-actividades">
+            <select name="course" id="combo-actividades">
                 {% for curso in courses %}
                     <option value="{{ curso }}">{{ curso }}</option>
                 {% endfor %}
             </select>
                 <button class="br" type="submit">Revisar</button>
             </form>
+
               <h1>Curso: {{s}}</h1>
               <div class="frame">
                 {% if s == " " %}
                 <h1> </h1>
                 {% else %}
-                <img src="{% static 'images/grafica.png' %}" alt="Gráfica generada">
+                {{ grafic_html|safe }}
                 {% endif %}
               </div>
+        {% elif r %}
+            <h1>Top de notas de Cursos</h1>
+            <h2>Cursos:</h2>
+            <form method="post" action="{% url 'top' %}">
+                {% csrf_token %}
+            <select name="course" id="combo-actividades">
+                {% for c in courses %}
+                    <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+            </select>
+                <button class="br" type="submit">Revisar</button>
+            </form>
+        {% elif w%}
+            <h1>{{w}}</h1>
+            {% if q %}
+                <h1> Actividad: {{q}}</h1>
+            {% endif %}   
+            <form method="post" action="{% url 'test' %}">
+                {% csrf_token %}
+            <select name="activity" id="combo-actividades">
+                {% for act in acts %}
+                    <option value="{{ act }}">{{ act }}</option>
+                {% endfor %}
+            </select>
+                <button class="br" type="submit">Revisar</button>
+            </form>
+            <div class="frame">
+            {% if w == " " %}
+                <h1> </h1>
+            {% else %}
+                {{ grafic_html|safe }}
+            {% endif %}
+            </div>
+        
+        
         {% endif %}
 
         

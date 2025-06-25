@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 from django.conf import settings
+import plotly.graph_objects as go
 
 
 
@@ -212,69 +213,157 @@ def notes_view(request):
 def promedy_view(request):
     c = request.session.get("code")
     name = ""
-    courses=[]
-    response2 = requests.post("http://localhost:5000/getStu", json={
-            "code": c
-    })
-            
+    courses = []
+
+    
+    response2 = requests.post("http://localhost:5000/getStu", json={"code": c})
     if response2.status_code == 200:
-        data2 = response2.json()
-        user = data2.get("user")
-        name = user.get("name")
+        user = response2.json().get("user", {})
+        name = user.get("name", "")
+
     
-    response = requests.post("http://localhost:5000/NotesP")
-    data = response.json()
-    courses = data.get('courses')    
-    activity= " "
-    
-    if request.method == 'POST':
-        activity = request.POST.get('activity')
-        print("Actividad recibida:", activity)
+    resp_courses = requests.post("http://localhost:5000/NotesP")
+    if resp_courses.status_code == 200:
+        courses = resp_courses.json().get("courses", [])
+
+    course = " "
+    grafico_html = ""  
+
+
+    if request.method == "POST":
+        course = request.POST.get("course", " ")
+        print("Actividad recibida:", course)
+
         
-        response = requests.post("http://localhost:5000/NotesP")
-        data = response.json()
-        courses = data.get('courses')
-       
+        resp_courses = requests.post("http://localhost:5000/NotesP")
+        if resp_courses.status_code == 200:
+            courses = resp_courses.json().get("courses", [])
+
         
-        response3 = requests.post("http://localhost:5000/getNotesP", json={
-            "name":  activity
-            })
+        response3 = requests.post(
+            "http://localhost:5000/getNotesP",
+            json={"name": course}
+        )
+
         if response3.status_code == 200:
             data3 = response3.json()
             print(data3)
 
-            acts = [c["act"] for c in data3["activities"]]
+            acts  = [c["act"].capitalize() for c in data3["activities"]]
             proms = [c["prom"] for c in data3["activities"]]
 
-            fig, ax = plt.subplots(figsize=(6, 3))
-            bars = ax.bar(acts, proms, color='#1f77b4')
-            ax.grid(True, axis='y', linestyle='--', linewidth=0.5)
-            ax.set_ylim(0, max(proms) + 10)
-            ax.bar_label(bars, fmt='%.1f', padding=3)
+           
+            fig = go.Figure(
+                data=[go.Bar(x=acts, y=proms, marker_color="#1f77b4")]
+            )
+            fig.update_layout(
+                title=f"Promedio de actividades - {course}",
+                xaxis_title="Actividad",
+                yaxis_title="Promedio",
+                yaxis=dict(range=[0, max(proms) + 10]),
+                template="simple_white",
+                height=400,
+                margin=dict(l=30, r=30, t=50, b=30),
+            )
 
-            plt.tight_layout()
-
-    
-            static_path = os.path.join(settings.BASE_DIR, 'paginas', 'Frontend', 'static', 'images')
-            os.makedirs(static_path, exist_ok=True)
-            image_path = os.path.join(static_path, 'grafica.png')
-            plt.savefig(image_path)
-            plt.close()
+            
+            grafico_html = fig.to_html(full_html=False)
         else:
-            activity = " "
-        
-        return render(request, 'tutor.html',{"name": name, "s":activity, "courses":courses})   
+            course = " "
+            grafico_html = "<p>Error al obtener datos para el gráfico.</p>"
 
-        
-   
-    return render(request, 'tutor.html',{"name": name, "s":activity, "courses":courses})
 
-def test_view(request):
-    
+    return render(request, 'tutor.html',{"name": name, "s":course, "courses":courses, "grafic_html":grafico_html})
+
+
+
+
+def top_view(request):
+    c = request.session.get("code")
+    name = ""
     courses = []
-    response = requests.post("http://localhost:5000/NotesP")
-    data = response.json()
-    courses = data.get('courses')
-    print(courses)
-    name = 'pablo'
-    return render(request,'tutor.html',{"name": name, "s":name,"courses":courses})
+    activities = []
+    
+    response2 = requests.post("http://localhost:5000/getStu", json={"code": c})
+    if response2.status_code == 200:
+        user = response2.json().get("user", {})
+        name = user.get("name", "")
+
+    
+    resp_courses = requests.post("http://localhost:5000/NotesP")
+    if resp_courses.status_code == 200:
+        courses = resp_courses.json().get("courses", [])
+
+    course = " "
+    if request.method == "POST":
+        
+        course = request.POST.get("course", " ")
+        request.session["aCourse"] = course
+        response6 = requests.post("http://localhost:5000/act", json={"name": courses[0]})
+        if response6.status_code == 200:
+            activities = response6.json().get("activities",[])
+
+
+        return render(request, 'tutor.html',{"name": name, "w":course,"acts": activities})    
+
+    return render(request, 'tutor.html',{"name": name, "r":course, "courses":courses})
+
+
+
+def test_view(request): 
+    if request.method == "POST":
+        activities = []
+        c = request.session.get("code")
+        name = ""
+        courses = []
+        activity = " "
+        response2 = requests.post("http://localhost:5000/getStu", json={"code": c})
+        if response2.status_code == 200:
+            user = response2.json().get("user", {})
+            name = user.get("name", "")
+        
+        course = request.session.get('aCourse')
+        print("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyy", course)
+        
+        
+        activity = request.POST.get("activity", " ")
+        print("Actividad recibida:", activity)
+        
+        response6 = requests.post("http://localhost:5000/act", json={"name": course})
+        if response6.status_code == 200:
+            activities = response6.json().get("activities",[])
+        
+        response3 = requests.post("http://localhost:5000/getTop",
+            json={"name": course, "act":activity}
+        )
+
+        if response3.status_code == 200:
+            data3 = response3.json()
+            print(data3)
+
+            code  = [str(c["code"]) for c in data3["top"]]
+            note = [c["note"] for c in data3["top"]]
+
+           
+            fig = go.Figure(
+                data=[go.Bar(x=code, y=note, marker_color="#1f77b4")]
+            )
+            fig.update_layout(
+                title=f"Top de notas - {activity}",
+                xaxis_title="Carnet",
+                yaxis_title="Nota",
+                yaxis=dict(range=[0, max(note) + 10]),
+                template="simple_white",
+                height=400,
+                margin=dict(l=30, r=30, t=50, b=30),
+            )
+
+            
+            grafico_html = fig.to_html(full_html=False)
+        else:
+            course = " "
+            grafico_html = "<p>Error al obtener datos para el gráfico.</p>"
+
+
+        return render(request, 'tutor.html',{"name": name, "w":course,"q":activity , "courses":courses, "grafic_html":grafico_html,"acts": activities})
+    return render(request, 'tutor.html')

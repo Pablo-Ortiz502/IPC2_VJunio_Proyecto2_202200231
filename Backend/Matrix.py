@@ -198,7 +198,9 @@ class Matrix():
         return row,promedy          
     
     def setAct (self,act):
-        self.act = act            
+        self.act = act
+        
+                   
 
 if __name__ == '__main__':
     m = Matrix(0,"curso 2",1)

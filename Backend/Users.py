@@ -35,7 +35,7 @@ class Admin(object):
         for m in self.notes:
             if m.code == code:
                 return m
-    
+        return None
 class Tutor(object):
     def __init__(self, name, code, password) :
         self.name = name

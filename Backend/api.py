@@ -164,9 +164,33 @@ def NotesT():
     
     courses = []
     for c in tutor.courses:
-        courses.append(c.name)
+        matrix = admin.getMatrix(c.code)
+        if matrix:
+            courses.append(c.name)
     
-    return jsonify({"courses": courses}),200 
+    return jsonify({"courses": courses}),200
+
+@app.route('/act',methods=['POST'])
+def actT():
+    tutor = app.config.get('USER')
+    if not tutor:
+        print("aqui no hay tutor")
+        return jsonify({"message": "Credenciales inválidas"}), 401
+    
+    data = request.get_json()
+    name = data.get('name')
+    code = 0
+    
+    for c in tutor.courses:
+        if c.name.lower() == name.lower():
+            code = c.code
+    print(code)
+    matrix = admin.getMatrix(code)
+    
+    if matrix:
+        return jsonify({"activities": matrix.act}),200
+    else:
+        return jsonify({"error":"no hay notas"}),401
     
 @app.route('/getNotesP',methods=['POST'])
 def getNotesP():
@@ -189,10 +213,49 @@ def getNotesP():
     if matrix:
         for act in matrix.act:
             list, promedy = matrix.getRow(act)
-            #list2 = [{'name': d['name'], 'note': d['note']} for d in list]
             data.append({'act':act, 'prom':promedy})     
         print(data)         
         return jsonify({"activities": data}),200       
     return jsonify({"error": "error"}),401
+
+
+@app.route("/getTop",methods=['POST'])
+def getTop():
+    code = 0
+    tutor = app.config.get('USER')
+    if not tutor:
+        print("aqui no hay tutor")
+        return jsonify({"message": "Credenciales inválidas"}), 401
+    
+    #peticiones
+    data = request.get_json()
+    name = data.get('name')
+    activity = data.get('act')
+    
+    print(name)
+    print(activity)
+     
+    print("-------------------------------",name)
+    for c in tutor.courses:
+        if c.name.lower() == name.lower():
+            code = c.code
+    print(code)
+    matrix = admin.getMatrix(code)
+    
+    listOrder = []
+    if matrix:
+        for act in matrix.act:
+            if act.lower() == activity.lower():
+                list, promedy = matrix.getRow(act)
+                listOrder = sorted(list, key=lambda x: x["note"],reverse=True)
+                break
+                            
+        return jsonify({"top": listOrder}),200       
+    return jsonify({"error": "error"}),401
+     
+
+
 if __name__ == '__main__':
     app.run(debug=True,port=5000)
+
+       
