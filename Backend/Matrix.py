@@ -63,11 +63,12 @@ class Node():
         self.down = None
 
 class Matrix():
-    def __init__(self, layer, name):
+    def __init__(self, layer, code,act):
         self.layer = layer
-        self.name = name
+        self.code = code
         self.row = HeadList('x')
         self.colum = HeadList('y')
+        self.act = act
 
     def checkHead(self, x, y,activity):
         xNode = self.row.getHead(x)
@@ -161,21 +162,55 @@ class Matrix():
             columHead = self.colum.first
             if rowHead.id == code: 
                 while current is not None:
-                    colum.append(Activity(columHead.header,current.valor,current.x))
+                    colum.append(Activity(columHead.header,current.valor,current.x).to_dict())
                     columHead = columHead.next
                     current = current.next
                 return colum    
             rowHead = rowHead.next
-                   
-                
+    
+    def getRow(self,act:str):
+        row = []
+        columHead = self.colum.first
+        count = 0
+        total = 0
+        while columHead is not None:
+            if columHead.header.lower()==act.lower():
+                break
+            count +=1
+            columHead = columHead.next
+            
+        countE = 0    
+        rowHead = self.row.first        
+        while rowHead is not None:
+            current = rowHead.acces
+            
+            while current is not None:
+                if current.y == count:
+                    row.append(Activity(columHead.header,current.valor,current.x).to_dict())
+                    total += (current.valor)
+                    countE +=1
+                    break
+                current = current.next        
+            rowHead = rowHead.next
+               
+        promedy = total/countE
+        
+        return row,promedy          
+    
+    def setAct (self,act):
+        self.act = act            
 
 if __name__ == '__main__':
-    m = Matrix(0,"curso 2")
-    m.add(2010002332, 1, 'A',"tarea1")
-    m.add(2010002332, 2, 'B',"tarea2")
-    m.add(2010002332, 3, 'C',"tarea3")
-    m.add(2010, 2, 'd',"tarea1") 
+    m = Matrix(0,"curso 2",1)
+    m.add(2010, 0, 50,"tarea1")
+    m.add(2011, 0, 100,"tarea1") 
+    m.add(2012, 0, 65,"tarea1") 
+    
+    m.add(2010, 1, 81,"tarea2") 
+    m.add(2011, 1, 74,"tarea2")
+    m.add(2012, 1, 61,"tarea2")   
     m.display()
     
-    print(m.getColum(2010))
     
+    print(m.getColum(2010))
+    print(m.getRow("Tarea2"))

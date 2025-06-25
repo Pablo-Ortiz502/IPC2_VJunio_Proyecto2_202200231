@@ -116,12 +116,19 @@ def timeXML():
     Timer(xml,tutor)
     print(tutor.time)
     
+    return jsonify({"message": "exito"}),200
+
+@app.route('/getTimeXML', methods=['POST'])
+def  getTime():
+    tutor = app.config.get('USER')  
     times = []
     for t in tutor.time:
         print(t.to_dict())
         times.append(t.to_dict())
     
     return jsonify({"times": times}),200
+
+
 
 @app.route('/setNotes',methods=['POST']) 
 def notesApi():
@@ -133,7 +140,6 @@ def notesApi():
     xml = request.data.decode('utf-8')
     matrix = setNotes(xml,tutor,admin)
     print("hola")
-    matrix.display()
     
     rowHead = matrix.row.first
     notes = []
@@ -146,26 +152,47 @@ def notesApi():
             current = current.next
                 
         rowHead = rowHead.next
-    
-    print(notes)
 
-    #hay que cambiar como se llena la lista de actividades
     return jsonify({"message": "exito"}),200 
 
-@app.route('/getNotesP',methods=['POST'])
-def getNotesT():
-    data = request.get_json()
-    code = int(data.get('code'))
+@app.route('/NotesP',methods=['POST'])
+def NotesT():
     tutor = app.config.get('USER')
-    course = admin.getCourse(code).name.lower()
+    if not tutor:
+        print("aqui no hay tutor")
+        return jsonify({"message": "Credenciales inválidas"}), 401
     
+    courses = []
+    for c in tutor.courses:
+        courses.append(c.name)
     
+    return jsonify({"courses": courses}),200 
     
+@app.route('/getNotesP',methods=['POST'])
+def getNotesP():
+    code = 0
+    tutor = app.config.get('USER')
+    if not tutor:
+        print("aqui no hay tutor")
+        return jsonify({"message": "Credenciales inválidas"}), 401
     
+    data = request.get_json()
+    name = data.get('name')
+    print("-------------------------------",name)
+    for c in tutor.courses:
+        if c.name.lower() == name.lower():
+            code = c.code
+    print(code)
+    matrix = admin.getMatrix(code)
     
-    
-    return jsonify({"message": "exito"}),200 
-    
-
+    data = []
+    if matrix:
+        for act in matrix.act:
+            list, promedy = matrix.getRow(act)
+            #list2 = [{'name': d['name'], 'note': d['note']} for d in list]
+            data.append({'act':act, 'prom':promedy})     
+        print(data)         
+        return jsonify({"activities": data}),200       
+    return jsonify({"error": "error"}),401
 if __name__ == '__main__':
     app.run(debug=True,port=5000)

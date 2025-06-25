@@ -2,6 +2,11 @@ from urllib import response
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 import requests
+import matplotlib
+matplotlib.use('Agg')  
+import matplotlib.pyplot as plt
+import os
+from django.conf import settings
 
 
 
@@ -49,11 +54,15 @@ def home_view(request):
         response2 = requests.post("http://localhost:5000/getStu", json={
             "code": c
             })
+        
+        response = requests.post("http://localhost:5000/getTimeXML")
+        data3 = response.json()
+        
         if response2.status_code == 200:
             data = response2.json()
             user = data.get("user")
             name = user.get("name")  
-            return render(request, 'tutor.html', {'data': t,"name": name})
+            return render(request, 'tutor.html', {'data': data3,"name": name})
         
     return JsonResponse({"error": "Tipo de usuario no válido"})
 
@@ -131,8 +140,9 @@ def yo_view(request):
         
 def time_view(request):
     xmlContent = ""
-    data =[]
+    data3 =[]
     c = request.session.get("code")
+        
     if request.method == 'POST' and 'xml_file' in request.FILES:
         xmlFile = request.FILES['xml_file']
         name =""
@@ -143,7 +153,8 @@ def time_view(request):
                 data=xmlContent,
                 headers={'Content-Type': 'application/xml'}
             )
-            data = response.json()
+            response = requests.post("http://localhost:5000/getTimeXML")
+            data3 = response.json()
             
             response2 = requests.post("http://localhost:5000/getStu", json={
             "code": c
@@ -156,8 +167,8 @@ def time_view(request):
 
         except UnicodeDecodeError:
             xmlContent = 'Error al leer el archivo'
-        print(data)    
-        return render(request, 'tutor.html', {'data': data,"name": name})
+        print(data3)    
+        return render(request, 'tutor.html', {'data': data3,"name": name})
     
     return render(request, 'tutor.html')
 
@@ -179,7 +190,6 @@ def notes_view(request):
      
     if request.method == 'POST' and 'xml_file' in request.FILES:
         xmlFile = request.FILES['xml_file']
-        name =""
         data="no ufnciono"
         try:
             xmlContent = xmlFile.read().decode('utf-8')
@@ -190,14 +200,6 @@ def notes_view(request):
             )
             data = response.json()
             
-            response2 = requests.post("http://localhost:5000/getStu", json={
-            "code": c
-            })
-            
-            if response2.status_code == 200:
-                data2 = response2.json()
-                user = data2.get("user")
-                name = user.get("name")
 
         except UnicodeDecodeError:
             xmlContent = 'Error al leer el archivo'         
@@ -207,5 +209,72 @@ def notes_view(request):
     return render(request, 'tutor.html',{"name": name, "k":name})
 
 
+def promedy_view(request):
+    c = request.session.get("code")
+    name = ""
+    courses=[]
+    response2 = requests.post("http://localhost:5000/getStu", json={
+            "code": c
+    })
+            
+    if response2.status_code == 200:
+        data2 = response2.json()
+        user = data2.get("user")
+        name = user.get("name")
+    
+    response = requests.post("http://localhost:5000/NotesP")
+    data = response.json()
+    courses = data.get('courses')    
+    activity= " "
+    
+    if request.method == 'POST':
+        activity = request.POST.get('activity')
+        print("Actividad recibida:", activity)
+        
+        response = requests.post("http://localhost:5000/NotesP")
+        data = response.json()
+        courses = data.get('courses')
+       
+        
+        response3 = requests.post("http://localhost:5000/getNotesP", json={
+            "name":  activity
+            })
+        if response3.status_code == 200:
+            data3 = response3.json()
+            print(data3)
+
+            acts = [c["act"] for c in data3["activities"]]
+            proms = [c["prom"] for c in data3["activities"]]
+
+            fig, ax = plt.subplots(figsize=(6, 3))
+            bars = ax.bar(acts, proms, color='#1f77b4')
+            ax.grid(True, axis='y', linestyle='--', linewidth=0.5)
+            ax.set_ylim(0, max(proms) + 10)
+            ax.bar_label(bars, fmt='%.1f', padding=3)
+
+            plt.tight_layout()
+
+    
+            static_path = os.path.join(settings.BASE_DIR, 'paginas', 'Frontend', 'static', 'images')
+            os.makedirs(static_path, exist_ok=True)
+            image_path = os.path.join(static_path, 'grafica.png')
+            plt.savefig(image_path)
+            plt.close()
+        else:
+            activity = " "
+        
+        return render(request, 'tutor.html',{"name": name, "s":activity, "courses":courses})   
+
+        
+   
+    return render(request, 'tutor.html',{"name": name, "s":activity, "courses":courses})
+
 def test_view(request):
-    return render(request,"home.html")
+    
+    courses = []
+    response = requests.post("http://localhost:5000/NotesP")
+    data = response.json()
+    courses = data.get('courses')
+    print(courses)
+    name = 'pablo'
+    return render(request,'tutor.html',{"name": name, "s":name,"courses":courses})

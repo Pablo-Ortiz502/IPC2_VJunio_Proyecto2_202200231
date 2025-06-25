@@ -31,9 +31,9 @@ class Admin(object):
         print('no se encontro el Tutor')          
         return None
     
-    def getMatrix(self, name: str):
+    def getMatrix(self, code):
         for m in self.notes:
-            if m.name == name:
+            if m.code == code:
                 return m
     
 class Tutor(object):

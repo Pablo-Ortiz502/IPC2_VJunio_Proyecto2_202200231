@@ -1,6 +1,6 @@
 
 from operator import neg
-from Users import Admin, Tutor, Student, Course, Time,Activity
+from Users import Admin, Tutor, Student, Course, Time
 from xml.dom import minidom
 import re
 from xml.dom.minidom import Document
@@ -181,31 +181,35 @@ def setNotes(xml,tutor: Tutor,admin: Admin):
     
     for actuvity in activities:
         name = actuvity.getAttribute("nombre")
-        act.append(name.lower())
-    print(act)    
+        act.append(name.lower())    
     act = list(dict.fromkeys(act))
-    print(act) 
     
-    matrix = next((m for m in tutor.notes if m.name.lower() == nameC.lower()), None)
+    matrix = next((m for m in admin.notes if m.code == codeC), None)
     if not matrix:
-        matrix = Matrix(0,codeC)
+        matrix = Matrix(0,codeC,act)
         admin.notes.append(matrix)
     else:
         current = matrix.colum.first
+        
         while current is not None:
             act.append(current.header.lower())
             current = current.next
+            
     act = list(dict.fromkeys(act)) 
+    matrix.setAct(act)
+    
     for actuvity in activities:
         name = actuvity.getAttribute("nombre").lower()
         code = int(actuvity.getAttribute("carnet"))
         note = int(actuvity.firstChild.nodeValue.strip())
+        
         if name in act and 0 <= note <= 100:
-            print(code)
             student = next((s for s in admin.students if s.code == code), None)
-            print(student)
+    
+            
             if student:
                 cou = next((c for c in student.courses if c.code == codeC),None)
+                
                 if cou:
                     cou.note +=note
                     matrix.add(code,act.index(name),note,name)

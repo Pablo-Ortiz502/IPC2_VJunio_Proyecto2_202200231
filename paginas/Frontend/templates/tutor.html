@@ -9,7 +9,7 @@
 <body>
     <div class="menu">
         <div class="tex-menu-container">
-            <h1>Bienvenido</h1>
+            <h1>Bienvenido Tutor</h1>
             <h1>{{ name }}</h1> 
         </div>
         <div class="button-menu-container" >
@@ -21,7 +21,7 @@
                 {% csrf_token %}
                 <button name="user_button" type="submit">cargar notas</button>
             </form>
-            <form  method="post" action="{% url 'notesT' %}"> <!--provisional-->
+            <form  method="get" action="{% url 'promedy' %}"> <!--provisional-->
                 {% csrf_token %}
                 <button name="user_button" type="submit">Ver Promedio</button>
             </form>
@@ -83,8 +83,25 @@
                 </div>
             </form>
         {% elif s %}
-            <h1>Resumen de notas</h1>
-                
+            <h1>Promedio de notas</h1>
+
+            <form method="post" action="{% url 'promedy' %}">
+                {% csrf_token %}
+            <select name="activity" id="combo-actividades">
+                {% for curso in courses %}
+                    <option value="{{ curso }}">{{ curso }}</option>
+                {% endfor %}
+            </select>
+                <button class="br" type="submit">Revisar</button>
+            </form>
+              <h1>Curso: {{s}}</h1>
+              <div class="frame">
+                {% if s == " " %}
+                <h1> </h1>
+                {% else %}
+                <img src="{% static 'images/grafica.png' %}" alt="Gráfica generada">
+                {% endif %}
+              </div>
         {% endif %}
 
         
