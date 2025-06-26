@@ -34,7 +34,7 @@ def login():
         for s in admin.students:
             if s.code == int(code):
                 app.config['USER'] = s       
-        return jsonify({"message": "Login exitoso", "User": 2}), 200
+        return jsonify({"message": "Login exitoso", "user": 2}), 200
     
     if user == 3:
         for t in admin.tutors:
@@ -253,8 +253,50 @@ def getTop():
         return jsonify({"top": listOrder}),200       
     return jsonify({"error": "error"}),401
      
+#------------------------------------estudiante---------------------------
+
+@app.route("/stu",methods=['POST'])
+def getNotes():
+    code = 0
+    student = app.config.get('USER')
+    if not student:
+        print("aqui no hay tutor")
+        return jsonify({"message": "Credenciales inválidas"}), 401
+    
+    data = request.get_json()
+    name = data.get('course')
+    print(name)
+    for c in student.courses:
+        if c.name.lower() == name.lower():
+            code = c.code
+            
+    matrix = admin.getMatrix(code)
+    
+    if not matrix:
+        return jsonify({"message": "Matriz no encontrada"}), 401
+    row = matrix.getColum(student.code)
+    print("rwo", row)
+    notes = [{'name': d['name'], 'note': d['note']} for d in row]
+    print(notes)
+    return jsonify({"notes": notes}),200
 
 
+
+@app.route('/coursesE',methods=['POST'])
+def coursesE():
+    student = app.config.get('USER')
+    if not student:
+        print("aqui no hay tutor")
+        return jsonify({"message": "Credenciales inválidas"}), 401
+    
+    courses = []
+    for c in student.courses:
+        matrix = admin.getMatrix(c.code)
+        if matrix:
+            courses.append(c.name)
+    
+    return jsonify({"courses": courses}),200
+    
 if __name__ == '__main__':
     app.run(debug=True,port=5000)
 

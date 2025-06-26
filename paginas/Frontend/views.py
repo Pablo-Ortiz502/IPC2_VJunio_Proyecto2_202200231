@@ -16,6 +16,7 @@ def login_view(request):
     if request.method == "POST":
         code = (request.POST.get("username"))
         password = request.POST.get("password")
+    
 
         response = requests.post("http://localhost:5000/login", json={
             "code": code,
@@ -27,6 +28,8 @@ def login_view(request):
         if response.status_code == 200:# login exitoso
             data = response.json()
             user = data.get("user")
+            print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",user)
+            
             request.session["user"] = int(user)
             return redirect("homeAdmin")  # Redirige a admin
         else:
@@ -49,8 +52,6 @@ def home_view(request):
             name = data.get("name")
             return render(request, "home.html", {"name": name})
     if user == 3:
-        
-        t = [""]
         c = request.session.get("code")
         response2 = requests.post("http://localhost:5000/getStu", json={
             "code": c
@@ -64,7 +65,24 @@ def home_view(request):
             user = data.get("user")
             name = user.get("name")  
             return render(request, 'tutor.html', {'data': data3,"name": name})
+    if user == 2:
+        name = ""
+        courses=[]
+        c = request.session.get("code")
+        response3 = requests.post("http://localhost:5000/getStu", json={
+            "code": c
+            })
+        if response3.status_code == 200:
+            data = response3.json()
+            user = data.get("user")
+            name = user.get("name")
+            
+        resp_courses = requests.post("http://localhost:5000/coursesE")
+        if resp_courses.status_code == 200:
+            courses = resp_courses.json().get("courses", [])
         
+             
+        return render(request, 'student.html',{"name":name, "courses": courses})
     return JsonResponse({"error": "Tipo de usuario no válido"})
 
 #---------------------------------admin----------------------------------------------
@@ -205,7 +223,7 @@ def notes_view(request):
         except UnicodeDecodeError:
             xmlContent = 'Error al leer el archivo'         
 
-        return render(request, 'tutor.html', {"name": name, "k":data})
+        return render(request, 'tutor.html', {"name": name, "k": "Notas subidas correctamente"})
     
     return render(request, 'tutor.html',{"name": name, "k":name})
 
@@ -367,3 +385,33 @@ def test_view(request):
 
         return render(request, 'tutor.html',{"name": name, "w":course,"q":activity , "courses":courses, "grafic_html":grafico_html,"acts": activities})
     return render(request, 'tutor.html')
+
+
+#-----------------------------------esetudiante------------------------------------
+def student_view(request):
+    course =""
+    name = ""
+    courses =[]
+    notes = []
+    if request.method == "POST": 
+        c = request.session.get("code")
+        name=""
+        response2 = requests.post("http://localhost:5000/getStu", json={"code": c})
+        if response2.status_code == 200:
+            user = response2.json().get("user", {})
+            name = user.get("name", "")
+        
+        resp_courses = requests.post("http://localhost:5000/coursesE")
+        if resp_courses.status_code == 200:
+            courses = resp_courses.json().get("courses", [])
+            
+        course = request.POST.get("course", " ")
+        print(course)
+        response = requests.post("http://localhost:5000/stu", json={"course": course})
+        if response.status_code == 200:
+            notes = response.json().get("notes")
+        
+        print(notes)       
+    
+    
+    return render(request, 'student.html',{"name":name, "courses":courses, "notes": notes})

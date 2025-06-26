@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Menu</title>
+    <link rel="stylesheet" href="{% static 'css/student.css' %}">
+</head>
+<body>
+    <div class="menu">
+        <div class="tex-menu-container">
+            <h1>Bienvenido Estudiante</h1>
+            <h1>{{ name }}</h1> 
+        </div>
+        <div class="button-menu-container" >
+            <form action="{% url 'login' %}" method="get">
+                {% csrf_token %}
+                <button type="submit">Salir</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="reader-container"><!--empieza-->
+    <h1>Notas de Cursos</h1>
+    <h2>Cursos</h2>
+    <form method="post" action="{% url 'student' %}">
+        {% csrf_token %}
+        <select name="course" id="combo-actividades">
+            {% for curso in courses %}
+                <option value="{{ curso }}">{{ curso }}</option>
+            {% endfor %}
+        </select>
+        <button class="br" type="submit">Revisar</button>
+    </form>
+    {% if not courses %}
+        <h1>NO hat notas disponibles por el momento</h1>
+    {% endif %}
+    {% if notes %}
+        <table class="user_table">
+            <thead>
+                <tr>
+                    <th>Actividades</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for note in notes %}
+                <tr>
+                    <td>{{ note.name }}</td>
+                    <td>{{ note.note }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>            
+    {% endif %}
+
+        
+    </div> <!--termina-->
+</body>
+</html>
